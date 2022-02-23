@@ -4,16 +4,18 @@ Usage : Jeux des echelles et des serpents
 Python : 3.10.1
 Created on 21/02/2022 by Céleste
 """
-from random import randint
-from time import sleep
+import random
 
 
-def player_status() -> tuple[int]:
+# from time import sleep
+
+
+def player_status():
     """
     Choici le nombre de joueurs humain et de joueurs IA
     :return: list[int, int]
     """
-    status: list[int] = [0, 0]
+    status: list[int, int] = [0, 0]
 
     while sum(status) != 4:
         status[0] = int(input('Nombre de joueurs humains svp : '))
@@ -22,16 +24,16 @@ def player_status() -> tuple[int]:
     return tuple(status)
 
 
-def travel(position: int, dices: int, win: int, snakes: list[tuple[int, int]], falls: list[tuple[int, int]]):
+def travel(position: int, dices: int, win: int, snakes: list[tuple[int, int]], falls: list[tuple[int, int]]) -> int:
     """
-    Moves the player according to whether they fall on a snake or a ladder and whether they move the winnable value
+    Déplace le joueur selon qu'il tombe sur un serpent ou une échelle et selon qu'il déplace ou non la valeur gagnable
     :param position: int
     :param dices: int
     :param win: int
     :param snakes: list[tuple[int, int]]
     :param falls: list[tuple[int, int]]
     """
-    if dices + position > win:
+    if position + dices > win:
         position = win - (position + dices - win)
     else:
         position += dices
@@ -39,17 +41,19 @@ def travel(position: int, dices: int, win: int, snakes: list[tuple[int, int]], f
     for j in range(len(falls)):
         if position == falls[j][0]:
             position = falls[j][1]
-            print(f"Vous etes tombé sur une échelle et êtes à la case {position}")
+            print(f"Vous etes tombé sur une échelle")
             return position
 
     for j in range(len(snakes)):
         if position == snakes[j][0]:
             position = snakes[j][1]
-            print(f"Vous avez pris un serpent et êtes à la case {position}")
+            print(f"Vous avez pris un serpent")
             return position
 
+    return position
 
-def main(status: tuple[int], snakes: list[tuple[int, int]], falls: list[tuple[int, int]], win: int) -> int:
+
+def main(status, snakes: list[tuple[int, int]], falls: list[tuple[int, int]], win: int) -> int:
     """
     Fonction principale du jeu
     :param status: tuple[int, int]
@@ -58,27 +62,33 @@ def main(status: tuple[int], snakes: list[tuple[int, int]], falls: list[tuple[in
     :param win: int
     :return: int
     """
-    locations: list[int] = [0] * sum(status)
+    case = [0] * (status[0] + status[1])
+    print("-------------------------------------------------------")
 
     while True:
-        for i in range(sum(status)):
+        for i in range(status[0] + status[1]):
+            temp: int = case[i]
             # if i <= status[0]:
             #     input(f'Appuyez sur entrée pour commencer le tour du joueur humain {i + 1}')
-            dices = randint(1, 6)
-
+            dices: int = random.randint(1, 6)
+            print(i)
             print(f'Vous avez fait {dices}')
-            print(f'Vous êtes à la case {locations[i]}')
-            locations[i] = travel(locations[i], dices, win, snakes, falls)
+            print(f'Vous êtes à la case {temp}')
+            temp = travel(temp, dices, win, snakes, falls)
+            print(f'Vous êtes maintenant à la case {temp}')
 
-            if locations[i] == win:
+            print("-------------------------------------------------------")
+            if temp == win:
                 print("Vous avez gagné !")
                 return i
-            sleep(1)
+            case[i] = temp
+            # sleep(1)
 
 
 def game_stats(nb_games: int, nb_players: int, snakes: list[tuple[int, int]], falls: list[tuple[int, int]], win: int) -> None:
     """
-    Lancer nb_games du jeu et calcule le % de win d'un joueur, le nombre moyen d'échelles et de serpent pris dans la partie et le nombre de tours moyen
+    Lancer nb_games du jeu et calcule le % de win d'un joueur, le nombre moyen d'échelles et de serpent pris dans la
+    partie et le nombre de tours moyen
     :param nb_games: int
     :param nb_players: int
     :param snakes: list[tuple[int, int]]
@@ -93,11 +103,10 @@ def game_stats(nb_games: int, nb_players: int, snakes: list[tuple[int, int]], fa
 
     for game in range(nb_games):
         locations = [0] * nb_players
-        temp = 0
         while win not in locations:
             for i in range(nb_players):
                 turn += 1
-                dices = randint(1, 6)
+                dices = random.randint(1, 6)
                 if dices + locations[i] > win:
                     locations[i] = win - (locations[i] + dices - win)
                 else:
@@ -131,7 +140,7 @@ if __name__ == "__main__":
     snakes = [(17, 7), (54, 19), (62, 24), (64, 34), (87, 60), (93, 73), (95, 75), (98, 79)]
     print("Start")
 
-    if bool(input("Voulez-vous jouer ou calculer les stats du jeu ? (O/N)")):
+    if bool(input("Voulez-vous jouer ou calculer les stats du jeu ? (O/N)") == 'N'):
         players = player_status()
         winner = main(players, snakes, falls, win)
         print(f'Le joueur {winner + 1} a gagné')

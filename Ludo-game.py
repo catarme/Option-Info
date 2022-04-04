@@ -8,7 +8,6 @@ def structure_donne(nb_players: int) -> list[list[str, int, tuple[int, int], lis
     :param nb_players: Nombre de joueurs.
     :type nb_players: int
     :return: liste de liste de la couleur, nombre de pion que le joueur a en main, (case d'entrée vers le homerun, case de sortie de la maison), position des pion sur le plateau, position des pions dans le home run
-    :rtype: list[list[str, int, tuple[int, int], list[int], list[int]]]
     :Example:
     >>> structure_donne(2)
     [['bleu', 4, (1, 3), [], []], ['vert', 4, (27, 29), [], []]]
@@ -24,7 +23,7 @@ def structure_donne(nb_players: int) -> list[list[str, int, tuple[int, int], lis
 
     else:
         for x in range(0, nb_players, 1):
-            players.append([couleur[x], 4, (3 + (x * 13), 1 + (x * 13)), [], []])
+            players.append([couleur[x], 4, (1 + (x * 13), 3 + (x * 13)), [], []])
 
     print(players)
     return players
@@ -36,15 +35,10 @@ list[list[str, int, tuple[int, int], list[int], list[int]]]:
     deplace les pions du joueur en fonction de la valeur de dé.
 
     :param player: liste de la couleur, nombre de pion que le joueur a en main, (case d'entrée vers le homerun, case de sortie de la maison), position des pion sur le plateau, position des pions dans le home run
-    :type player: list[list[str, int, tuple[int, int], list[int], list[int]]]
     :param des: valeur de dé
-    :type des: int
     :param piece: numéro du pion à déplacer
-    :type piece: int
     :param i: numéro du joueur
-    :type i: int
     :return: liste de la couleur, nombre de pion que le joueur a en main, (case d'entrée vers le homerun, case de sortie de la maison), position des pion sur le plateau, position des pions dans le home run
-    :rtype: list[list[str, int, tuple[int, int], list[int], list[int]]]
     :Example:
     >>> deplacement_piece([['bleu', 4, (1, 3), [], []], ['vert', 4, (27, 29), [], []]], 3, 0, 0)
     [['bleu', 4, (1, 3), [], []], ['vert', 4, (27, 29), [], []]]
@@ -52,6 +46,8 @@ list[list[str, int, tuple[int, int], list[int], list[int]]]:
 
     # Regarde si la position du pion + des ne dépasse pas la case player[i][2][0]
     home_run: bool = False
+    place: int = player[i][3][player[i][3].index(piece)]
+
 
     for y in range(des):
         #If the counter in question is on the board

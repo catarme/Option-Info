@@ -11,12 +11,12 @@ def structure(x: int) -> list[list[str, int, tuple[int], list[int], list[int]]]:
     players = []
 
     for tmp in range(x):
-        players.append([colors[x], 4, (1 + (x * 13), 3 + (x * 13)), [], []])
+        players.append([colors[tmp], 4, (1 + (tmp * 13), 3 + (tmp * 13)), [], []])
 
     return players
 
 
-def moove(info_player, liste, dice, nb_player, i) -> list[str, int, tuple[int], list[int], list[int]]:
+def player_moove(info_player, liste, dice, nb_player, i) -> list[str, int, tuple[int], list[int], list[int]]:
     """
     Déplace les pieces sur le plateau et sur le homerun
     :param: dice: int: Valeur des dés
@@ -24,7 +24,7 @@ def moove(info_player, liste, dice, nb_player, i) -> list[str, int, tuple[int], 
     :return: list: Nouvelles caracteristiques de chaques joueurs
     """
     choose = input(f"Vous voulez déplacer quel pieces {info_player[i]} : ")
-    while choose not in [str(tmp) for tmp in info_player]:
+    while choose not in [str(tmp) for tmp in info_player[i][3]]:
         choose = input(f"Vous voulez déplacer quel pieces {info_player[i]} : ")
 
     temp_choose = liste[liste.index(int(choose))]
@@ -62,8 +62,8 @@ def moove(info_player, liste, dice, nb_player, i) -> list[str, int, tuple[int], 
 if __name__ == "__main__":
     print("début de la Partie de Ludo")
 
-    number_player = input("Vous voulez combien de joueurs (1-4) : ")
-    while number_player not in [2, 3, 4]:
+    number_player = input("Vous voulez combien de joueurs (2-4) : ")
+    while number_player not in ['2', '3', '4']:
         number_player = input("Entrée une valeur valide : ")
 
     number_player = int(number_player)
@@ -102,6 +102,7 @@ if __name__ == "__main__":
                     # Sort une piece
                     temp[1] -= 1
                     temp[3].append(temp[2][1])
+                    continue
 
             moove = None
             if temp[4]:
@@ -110,10 +111,10 @@ if __name__ == "__main__":
                     moove = input("Entrée une valeur valide : ")
 
                 if moove == "o":
-                    player = moove(player, temp[4], dice, number_player, i)
+                    player = player_moove(player, temp[4], dice, number_player, i)
 
             if temp[3] and moove is None:
-                player = moove(player, temp[3], dice, number_player, i)
+                player = player_moove(player, temp[3], dice, number_player, i)
 
             if temp[4] and len(temp[4]) == 4:
                 print(f"Le joueur {i} a gagné")

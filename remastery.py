@@ -1,8 +1,8 @@
-def structure(x: int) -> list[list[str, int, tuple[int], list[int], list[int]]]:
+def structure(x):
     """
-    Créer les variables de chaque joueur
+    Crée la structure des joueurs
     :param: x: int Nombre de joueurs
-    :return: list: Caracteristiques de chaques joueurs
+    :return: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
     """
     if x == 2:
         return [["bleu", 4, (1, 3), [], []], ["vert", 4, (27, 29), [], []]]
@@ -16,47 +16,252 @@ def structure(x: int) -> list[list[str, int, tuple[int], list[int], list[int]]]:
     return players
 
 
-def player_moove(info_player, liste, dice, nb_player, i) -> list[str, int, tuple[int], list[int], list[int]]:
+def color_seperation(player, i):
     """
-    Déplace les pieces sur le plateau et sur le homerun
-    :param: dice: int: Valeur des dés
-    :param: info_player: int: places des dés
-    :return: list: Nouvelles caracteristiques de chaques joueurs
+    Seperation des pieces en fonction de la couleur
     """
-    choose = input(f"Vous voulez déplacer quel pieces {info_player[i]} : ")
-    while choose not in [str(tmp) for tmp in info_player[i][3]]:
-        choose = input(f"Vous voulez déplacer quel pieces {info_player[i]} : ")
+    if player[i][0] == "bleu":
+        print(
+            "\033[1;34m" + "====================================================================================" + "\033[0;0m")
+    elif player[i][0] == "vert":
+        print(
+            "\033[1;32m" + "====================================================================================" + "\033[0;0m")
+    elif player[i][0] == "rouge":
+        print(
+            "\033[1;31m" + "====================================================================================" + "\033[0;0m")
+    elif player[i][0] == "jaune":
+        print(
+            "\033[1;33m" + "====================================================================================" + "\033[0;0m")
 
-    temp_choose = liste[liste.index(int(choose))]
-    while dice != 0:
-        if temp_choose > info_player[2][0]:
-            # Transfert des pieces vers le homerun
-            info_player[i][3].remove(temp_choose)
-            temp_choose = 1
-            break
-        else:
-            temp_choose = (temp_choose + 1) % 52
-            dice -= 1
 
-    if dice != 0:
-        if temp_choose == 6:
-            # Associe la piece au homerun
-            info_player[i][4].append(temp_choose)
-            return info_player
-        # Fait avancer les pieces
-        temp_choose += 1
-
-    # Vérifie si il n'est pas sur une piece énemie
-    for j in range(0, nb_player, 1):
+def ecrasement(player, i, case):
+    """
+    Ecrase une piece ennemie
+    :param: player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param: i: int Numero du joueur
+    :param: case: int Case sur laquelle le joueur est
+    """
+    for j in range(0, len(player), 1):
         if j != i:
-            if temp_choose in info_player[i][3]:
-                # Supprime la piece ennemie
-                info_player[j][3].remove(temp_choose)
-                info_player[j][1] += 1
+            if case in player[j][3]:
+                player[j][3].remove(case)
+                player[j][1] += 1
 
-    # Ajoute la piece au joueur
-    info_player[i][3].append(temp_choose)
-    return info_player
+    return player
+
+
+def sortir_piece(player, i):
+    """
+    Sort une piece de la maison du joueur i
+    :param: player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param: i: int Numero du joueur
+    :return: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    """
+    player[i][1] -= 1
+    player[i][3].append(player[i][2][1])
+
+    # vérifie si il n'est pas sur une piece énemie
+    player = ecrasement(player, i, player[i][2][1])
+
+    return player
+
+
+def moove_homerun(player, i, dice, chose=1):
+    """
+    Déplace le joueur sur le homerun
+    :param: player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param: i: int Numero du joueur
+    :param: dice: int Nombre du dé
+    :param: nb_player: int Nombre de joueurs
+    """
+    temp = chose
+    while True:
+        temp += 1
+        dice -= 1
+        if temp == 6:
+            print("Vous ne pouvez pas aller si loin")
+            player[i][4].append(6)
+            return player
+        if dice == 0:
+            break
+
+    player[i][4].append(temp)
+
+    return player
+
+
+def moove_plateau(player, i, dice, chose):
+    """
+    Déplace le joueur sur le plateau et vérifie si il est sur une piece ennemie (si oui alors il les supprimes)
+    :param: player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param: i: int Numero du joueur
+    :param: dice: int Nombre du dé
+    :param: nb_player: int Nombre de joueurs
+
+    """
+    temp = chose
+    while True:
+        temp = (temp + 1) % 52
+        dice -= 1
+        if temp == player[i][2][0] + 1:
+            player[i][3].remove(chose)
+            player = moove_homerun(player, i, dice)
+            return player
+
+        if dice == 0:
+            break
+
+    player[i][3].remove(chose)
+    player[i][3].append(temp)
+
+    player = ecrasement(player, i, chose)
+
+    return player
+
+
+def turn_piece(player, i):
+    """
+    Tour du joueur i
+    :param player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param i: int Numero du joueur
+    :return: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    """
+    reapet = 0
+    while True:
+        from random import randint
+        dice = randint(1, 6)
+        chose = 'N'
+        print(f"Le joueur {i} a lancé le dé et obtient              {dice}")
+
+        if dice == 6:
+            reapet += 1
+            chose = input(f"Voulez vous sortir une piece sur la case {player[i][2][1]} ? (O/N)")
+            if chose == "O":
+                player = sortir_piece(player, i)
+                break
+
+        if chose == 'N':
+            if player[i][3]:
+                chose = input(f"Voulez vous déplacer une piece sur le parcours ? ({player[i][3]}/N)")
+                if chose != "N" and int(chose) in player[i][3]:
+                    player = moove_plateau(player, i, dice, int(chose))
+
+            elif chose == "N" and player[i][4]:
+                chose = input(f"Voulez vous déplacer une piece sur le homerun ? ({player[i][4]}/N)")
+                if chose != "N" and int(chose) in player[i][4]:
+                    player = moove_homerun(player, i, dice, int(chose))
+
+        if reapet in [0, 3]:
+            print("Vous ne pouvez jouer 3 fois d'affilé")
+            return player
+
+    return player
+
+
+def close_plateau(player, i):
+    """
+    Calcule la piece dans player[i][3] qui est la plus proche de player[i][2][0]
+    """
+    temp = player[i][3]
+    close = (52, 1)  # (piece, distance)
+    distance = 0
+    for piece in temp:
+        while temp == player[i][2][0]:
+            temp = (temp + 1) % 52
+            distance += 1
+        if distance < close[1]:
+            close = (piece, distance)
+
+        distance = 0
+
+    return close[0]
+
+
+def close_homerun(player, i, dice):
+    """
+    Calcule la piece dans player[i][4] qui a comme séparation le nombre de case le plus proche de la valeur de dice
+    """
+    temp = player[i][4]
+    close = (52, 1)  # (piece, distance)
+    dist = 0
+    for piece in temp:
+        # Calcul le reste de la soustractions entre la valeur de dice et la position de la piece jusqu'a la case 6
+        dist = 6 - (piece + dice - 6)
+        if dist > close[1]:
+            close = (piece, dist)
+
+        dist = 0
+
+    return close[0]
+
+
+def ia_turn(player, i):
+    """
+    Fait jouer une IA qui répond en prioriter la sortie de piece et en second temps le déplacement de la piece la moins éloignée de la case player[i][2][0]
+    :param player: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    :param i: int Numero du joueur
+    :return: list[list[str, int, tuple[int], list[int], list[int]]] Liste des joueurs
+    """
+    reapet = 0
+    while True:
+        from random import randint
+        if reapet == 4:
+            print("Vous ne pouvez jouer 3 fois d'affilé")
+            break
+        dice = randint(1, 6)
+        chose = 'N'
+
+        if dice == 6:
+            if player[i][3] or player[i][4]:
+                chose = "N"
+            else:
+                chose = "O"
+            if chose == "O":
+                player = sortir_piece(player, i)
+                break
+
+        if chose == 'N' and player[i][4]:
+            player = moove_homerun(player, i, dice, close_homerun(player, i, dice))
+            continue
+
+        elif chose == "N" and player[i][3]:
+            player = moove_plateau(player, i, dice, close_plateau(player, i))
+            continue
+
+        if reapet == 3:
+            print("Vous ne pouvez jouer 3 fois d'affilé")
+            break
+
+    return player
+
+
+def statistics(player, nb_games):
+    """
+    Calcule les statistiques de chaque joueur (nombre de victoire, nombre de défaite, nombre de tours joués)
+    """
+    prob_win = [0] * len(player)
+    prob_loose = [0] * len(player)
+    prob_tour = [0] * len(player)
+    for y in range(nb_games):
+        while True:
+            for i in range(number_player):
+                player = ia_turn(player, i)
+
+                prob_tour[i] += 1
+
+                if player[i][4] == [6, 6, 6, 6]:
+                    print("L'IA a gagné")
+                    prob_win[i] += 1
+                    break
+            break
+        prob_win[i] += 1
+
+    for i in range(len(player)):
+        color_seperation(player, i)
+        print(f"Le joueur {i} a gagné {prob_win[i]} fois sur {nb_games} parties")
+        print(f"Le joueur {i} a perdu {prob_loose[i]} fois sur {nb_games} parties")
+        print(f"Le joueur {i} a joué {prob_tour[i]} fois sur {nb_games} parties")
+        color_seperation(player, i)
 
 
 if __name__ == "__main__":
@@ -73,49 +278,31 @@ if __name__ == "__main__":
     player = structure(number_player)
     print(f"Informations des joueurs : {player}")
 
-    while True:
-        for i in range(number_player):
-            print(f"C'est au tour du joueur {i}",
-                  f"Vos infos. sont : {player[i]}")
+    stat = input("Voulez vous faire des statistiques ? (O/N)")
+    if stat == "O":
+        stat = True
+        nb_game = int(input("Combien de parties voulez vous faire ? "))
+        print("")
+        statistics(player, nb_game)
 
-            # Lance les dés (1 à 6)
-            from random import randint
+    else:
+        while True:
+            for i in range(number_player):
+                color_seperation(player, i)
+                print(f"C'est au tour du joueur {i}",
+                      f"Vos infos. sont : {player[i]}")
 
-            dice = randint(1, 6)
-            print(f"Vous avez fait {dice}")
+                player = turn_piece(player, i)
 
-            temp = player[i]
+                print(f"Vos infos. sont : {player[i]}")
 
-            if dice == 6 and temp[1] > 0:
-                out = input("Voulez vous sortir une piece (o/n) : ")
-                while out not in ["o", "n"]:
-                    out = input("Entrée une valeur valide : ")
+                color_seperation(player, i)
 
-                if out == "o":
-                    # Créer une liste de chaques pieces d'autres joueurs sur la case temp[2][1]
-                    for j in range(0, number_player - 1, 1):
-                        if j != i and player[2][1] in player[j][3]:
-                            for tmp in player[j][3]:
-                                if tmp == player[2][1]:
-                                    player[j][3].remove(tmp)
-                                    player[j][1] += 1
-                    # Sort une piece
-                    temp[1] -= 1
-                    temp[3].append(temp[2][1])
-                    continue
+                if player[i][4] == [6, 6, 6, 6]:
+                    print(f"Le joueur {player[i][0]} a gagné")
+                    print(f"Le score du joueur {player[i][0]} est de {player[i][1]}")
 
-            moove = None
-            if temp[4]:
-                moove = input("Voulez vous déplacer une piece dans le homerun (o/n) : ")
-                while moove not in ["o", "n"]:
-                    moove = input("Entrée une valeur valide : ")
-
-                if moove == "o":
-                    player = player_moove(player, temp[4], dice, number_player, i)
-
-            if temp[3] and moove is None:
-                player = player_moove(player, temp[3], dice, number_player, i)
-
-            if temp[4] and len(temp[4]) == 4:
-                print(f"Le joueur {i} a gagné")
-                break
+                    for j in range(len(player)):
+                        if j != i:
+                            print(f"Le score du joueur {player[j][0]} est de {player[j][1]}")
+                    break

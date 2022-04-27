@@ -48,9 +48,10 @@ def sortir_piece(joueurs: list[list[str, int, tuple[int], list[int], list[int]]]
     joueurs[numero_joueur][3].append(case_sortie)
 
     for temp in range(len(joueurs)):
-        if numero_joueur != temp and case_sortie in joueurs[temp][3]:
-            joueurs[temp][3].remove(case_sortie)
-            joueurs[temp][1] += 1
+        if numero_joueur == temp or case_sortie not in joueurs[temp][3]:
+            continue
+        joueurs[temp][3].remove(case_sortie)
+        joueurs[temp][1] += 1
 
     return joueurs
 
@@ -81,9 +82,10 @@ def deplacement_plateau(joueurs: list[list[str, int, tuple[int], list[int], list
 
     # Supprime les pieces ennemies sur cette case
     for temp in range(len(joueurs)):
-        if numero_joueur != temp and temp in joueurs[temp][3]:
-            joueurs[temp][3].remove(temp)
-            joueurs[temp][1] += 1
+        if numero_joueur == temp or temp not in joueurs[temp][3]:
+            continue
+        joueurs[temp][3].remove(temp)
+        joueurs[temp][1] += 1
 
     # Regarde si la piece est sur la case d'entrée
 
@@ -102,7 +104,7 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
     :return: list: liste des joueurs avec les modifications
     """
     from random import randint
-    for temp in range(3):
+    for i in range(3):
         de = randint(1, 6)
         chose = "n"
         if not robot:
@@ -159,13 +161,13 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
     return joueurs
 
 
-def main(humain: int) -> str:
+def main(humain: int, robot: int) -> str:
     """
     Execute une partie de jeux normal
     :param humain: int: nombre de joueur humain
     :return: None
     """
-    nb_joueur = humain
+    nb_joueur = humain + robot
     joueurs = structure(nb_joueur)
     tours = 0
 
@@ -173,7 +175,10 @@ def main(humain: int) -> str:
         for tour in range(nb_joueur):
             tours += 1
             print(f"C'est au tour de {joueurs[tour][0]}")
-            joueurs = deplacement(joueurs, tour)
+            if tour < humain:
+                joueurs = deplacement(joueurs, tour)
+            else:
+                joueurs = deplacement(joueurs, tour, True)
             print(joueurs)
             # Regarde si le joueur a gagné
             if joueurs[tour][4] == [6, 6, 6, 6]:
@@ -214,12 +219,12 @@ def main_statistique(nombre_robot: int, nombre_partie: int) -> None:
 
 
 if __name__ == '__main__':
-    humain = int(input("Nombre de joueur humain: (1-4) : "))
-    # robot = int(input(f"Nombre de joueur robot: (1-4) : "))
+    humain = int(input("Nombre de joueur humain (max 4) : "))
+    robot = int(input(f"Nombre de joueur robot: (max 4) : "))
 
-    while humain not in [2, 3, 4]:
-        humain = int(input("Nombre de joueur humain: (1-4) : "))
-        # robot = int(input(f"Nombre de joueur robot: (1-4) : "))
+    while (humain + robot) not in [2, 3, 4]:
+        humain = int(input("Nombre de joueur humain: (max 4) : "))
+        robot = int(input(f"Nombre de joueur robot: (max 4) : "))
 
     print("\n")
     print(f"Humain: {humain}")

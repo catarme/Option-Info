@@ -5,7 +5,7 @@ def deplacement(positions: list[int], joueurs: int, de: int, echelles: list[tupl
     """
     Déplace le pion d'un joueur
     :param positions: list[int]: liste des positions des joueurs
-    :param joueurs: int: numero du joueur
+    :param joueurs: int: numéro du joueur
     :param de: int: valeur du dé
     :param echelles: list[tuple[int, int]]: liste des cases d'entrée et de sortie des échelles
     :param serpents: list[tuple[int, int]]: liste des cases d'entrée et de sortie des serpents
@@ -35,12 +35,12 @@ def main(nombre_humain: int, nombre_robot: int, echelles: list[tuple[int, int]],
     """
     Fonction principale du jeu
     :param nombre_humain: int: nombre de joueurs humains
-    :param nombre_robot: int: nombre de joueurs IA
+    :param nombre_robot: int: nombre d'IA
     :param echelles: list[tuple[int, int]]: liste des cases d'entrée et de sortie des échelles
     :param serpents: list[tuple[int, int]]: liste des cases d'entrée et de sortie des serpents
     :param fin: int: case de fin de la partie
     :param logs: bool=True: affiche les logs de la partie si True
-    :param nombre_partie: int=1: nombre de partie à jouer
+    :param nombre_partie: int=1: nombre de parties à jouer
     :return: None
     """
     nombre_joueurs = nombre_humain + nombre_robot
@@ -57,8 +57,8 @@ def main(nombre_humain: int, nombre_robot: int, echelles: list[tuple[int, int]],
                     input("Appuyez pour lancer le dé")
                 de = randint(1, 6)
                 if logs:
-                    print(f"Le joueur {temp} a fait {de}",
-                          f"Vous etes sur la case {positions[temp]}")
+                    print(f"Le joueur {temp} a obtenu {de}",
+                          f"Vous êtes sur la case {positions[temp]}")
 
                 positions = deplacement(positions, temp, de, echelles, serpents, fin)
 
@@ -72,7 +72,7 @@ def main(nombre_humain: int, nombre_robot: int, echelles: list[tuple[int, int]],
                 break
 
     if not logs:
-        print(f"Le nombre de tour moyen par partie est de {nombre_tour / nombre_partie}")
+        print(f"Le nombre de tours moyen par partie est de {nombre_tour / nombre_partie}")
 
         for temp in range(nombre_joueurs):
             print(f"Le joueur {temp+1} a gagné {winrate[temp] / nombre_partie * 100}% des parties")
@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     print("Début du jeu")
 
-    if bool(input("Voulez-vous jouer faire des stats ? (y/n)") == 'y'):
+    if bool(input("Voulez-vous obtenir des statistiques ? (y/n)") == 'y'):
         main(humain, robot, echelles, serpents, fin, logs=False, nombre_partie=int(input("Combien de parties ? ")))
     else:
         main(humain, robot, echelles, serpents, fin)

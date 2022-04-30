@@ -21,11 +21,11 @@ def structure(nombre_joueur: int) -> list[list[str, int, tuple[int], list[int], 
 
 def deplacement_homerun(joueurs: list, numero_joueur: int, pieces: int, de: int):
     """
-    Deplacement d'une piece du homerun
+    Déplacement d'une pièce du homerun
     :param joueurs: list: liste des joueurs
-    :param numero_joueur: int: numero du joueur
-    :param pieces: int: numero de la piece
-    :param de: int: nombre du dé
+    :param numero_joueur: int: numéro du joueur
+    :param pieces: int: numéro de la pièce
+    :param de: int: valeur du dé
     :return: list: liste des joueurs avec les modifications
     """
     temp = pieces + de if pieces + de <= 6 else 6
@@ -36,11 +36,12 @@ def deplacement_homerun(joueurs: list, numero_joueur: int, pieces: int, de: int)
     return joueurs
 
 
-def sortir_piece(joueurs: list[list[str, int, tuple[int], list[int], list[int]]], numero_joueur: int, case_sortie: int):
+def sortir_piece(joueurs: list[list[str, int, tuple[int], list[int], list[int]]], numero_joueur: int,
+                 case_sortie: int) -> list[list[str, int, tuple[int], list[int], list[int]]]:
     """
-    Fait sortir une piece du plateau sur la case de sortie
+    Fait sortir une pièce du plateau sur la case de sortie
     :param joueurs: list: liste des joueurs
-    :param numero_joueur: int: numero du joueur
+    :param numero_joueur: int: numéro du joueur
     :param case_sortie: int: case de sortie
     :return: list: liste des joueurs avec les modifications
     """
@@ -56,13 +57,14 @@ def sortir_piece(joueurs: list[list[str, int, tuple[int], list[int], list[int]]]
     return joueurs
 
 
-def deplacement_plateau(joueurs: list[list[str, int, tuple[int], list[int], list[int]]], numero_joueur: int, pieces: int, de: int):
+def deplacement_plateau(joueurs: list[list[str, int, tuple[int], list[int], list[int]]], numero_joueur: int,
+                        pieces: int, de: int):
     """
-    Deplacement d'une piece du plateau
+    Deplacément d'une pièce du plateau
     :param joueurs: list: liste des joueurs
-    :param numero_joueur: int: numero du joueur
-    :param pieces: int: numero de la piece
-    :param de: int: nombre du dé
+    :param numero_joueur: int: numéro du joueur
+    :param pieces: int: numéro de la pièce
+    :param de: int: valeur du dé
     :return: list: liste des joueurs avec les modifications
     """
     if ((pieces + de) % 52) >= (joueurs[numero_joueur][2][0] + 1):
@@ -71,23 +73,18 @@ def deplacement_plateau(joueurs: list[list[str, int, tuple[int], list[int], list
             temps += 1
             de -= 1
             if (temps % 52) == joueurs[numero_joueur][2][0] + 1:
-                # Supprime la piece du plateau
                 joueurs[numero_joueur][3].remove(pieces)
-                # Ajoute la piece au homerun
                 joueurs[numero_joueur][4].append(1 + de)
                 return joueurs
 
     else:
         temps = ((pieces + de) % 52)
 
-    # Supprime les pieces ennemies sur cette case
     for temp in range(len(joueurs)):
         if numero_joueur == temp or temp not in joueurs[temp][3]:
             continue
         joueurs[temp][3].remove(temp)
         joueurs[temp][1] += 1
-
-    # Regarde si la piece est sur la case d'entrée
 
     joueurs[numero_joueur][3].remove(pieces)
     joueurs[numero_joueur][3].append(temps)
@@ -97,9 +94,9 @@ def deplacement_plateau(joueurs: list[list[str, int, tuple[int], list[int], list
 
 def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]], tour: int, robot: bool = False):
     """
-    Assure le respet des regles dans un tour de joueur
+    Assure le respect des règles pour chaque coup
     :param joueurs: list: liste des joueurs
-    :param tour: int: numero du tour
+    :param tour: int: numéro du tour
     :param robot: bool: si le joueur est un robot
     :return: list: liste des joueurs avec les modifications
     """
@@ -108,12 +105,11 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
         de = randint(1, 6)
         chose = "n"
         if not robot:
-            print(f"Le joueur {joueurs[tour][0]} a fait {de}")
+            print(f"Le joueur {joueurs[tour][0]} a obtenu {de}")
 
-        # Si le joueur a fait un 6 et que ce n'est pas un robot alors on lui demande si il veut sortir une piece
         if de == 6 and joueurs[tour][1] > 0:
             if not robot:
-                chose = input("Vous pouvez sortir une piece (y/n) ? ")
+                chose = input("Souhaitez-vous sortir une pièce (y/n) ? ")
             else:
                 chose = "y"
             if chose == "y":
@@ -122,19 +118,15 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
         if len(joueurs[tour][3]) + len(joueurs[tour][4]) == 0:
             return joueurs
 
-        # Si il a deja une piece sur la maison alors on lui demande il veut la déplacer
-        # regarde si tout les valeur de joueurs[tour][4] sont égale à 6
-
         if chose != "y" and len(joueurs[tour][4]) > 0 and joueurs[tour][4] != [6] * len(joueurs[tour][4]):
             if not robot:
-                chose = input("Vous pouvez déplacer une piece dans la maison (y/n) ? ")
+                chose = input("Souhaitez-vous déplacer une piece dans la maison (y/n) ? ")
             else:
                 chose = "y"
 
             if chose == "y":
-                # Demande quel piece il veut déplacer
                 if not robot:
-                    piece = int(input(f"Quelle piece voulez vous déplacer {joueurs[tour][4]} ? "))
+                    piece = int(input(f"Quelle pièce voulez-vous déplacer {joueurs[tour][4]} ? "))
                 else:
                     piece = random.choice(joueurs[tour][4])
 
@@ -144,14 +136,13 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
 
         if chose != "y" and len(joueurs[tour][3]) > 0:
             if not robot:
-                chose = input("Vous pouvez déplacer une piece du plateau (y/n) ? ")
+                chose = input("Souhaitez-vous déplacer une pièce du plateau (y/n) ? ")
             else:
                 chose = "y"
 
             if chose == "y":
-                # Demande quel piece il veut déplacer
                 if not robot:
-                    piece = int(input(f"Quelle piece voulez vous déplacer {joueurs[tour][3]} ? "))
+                    piece = int(input(f"Quelle pièce voulez-vous déplacer {joueurs[tour][3]} ? "))
                 else:
                     piece = random.choice(joueurs[tour][3])
 
@@ -163,9 +154,10 @@ def deplacement(joueurs: list[list[str, int, tuple[int], list[int], list[int]]],
 
 def main(humain: int, robot: int) -> str:
     """
-    Execute une partie de jeux normal
+    Exécute la partie
+    :param robot: int: nombre d'IA
     :param humain: int: nombre de joueur humain
-    :return: None
+    :return: str: couleur du gagnant
     """
     nb_joueur = humain + robot
     joueurs = structure(nb_joueur)
@@ -189,7 +181,7 @@ def main(humain: int, robot: int) -> str:
 
 def main_statistique(nombre_robot: int, nombre_partie: int) -> None:
     """
-    Execute nombre_partie de ludo game
+    Exécute nombre_partie de ludo game
     :param nombre_robot: int: nombre de robot
     :param nombre_partie: int: nombre de partie
     :return: None
@@ -203,7 +195,6 @@ def main_statistique(nombre_robot: int, nombre_partie: int) -> None:
         while True:
             for tour in range(nombre_robot):
                 joueurs = deplacement(joueurs, tour, True)
-                # print(joueurs)
                 if joueurs[tour][4] == [6, 6, 6, 6]:
                     winrate[tour] += 1
                     fini = True
@@ -214,26 +205,28 @@ def main_statistique(nombre_robot: int, nombre_partie: int) -> None:
                 break
 
     for temp in range(nombre_robot):
-        # Affiche le % de victoire
         print(f"Le joueur {temp} a gagné {winrate[temp] / nombre_partie * 100}% des parties")
+
+    return
 
 
 if __name__ == '__main__':
-    humain = int(input("Nombre de joueur humain (max 4) : "))
-    robot = int(input(f"Nombre de joueur robot: (max 4) : "))
+    humain = int(input("Nombre de joueurs humains: (max 4) : "))
+    robot = int(input(f"Nombre de joueurs robots: (max 4) : "))
 
     while (humain + robot) not in [2, 3, 4]:
-        humain = int(input("Nombre de joueur humain: (max 4) : "))
-        robot = int(input(f"Nombre de joueur robot: (max 4) : "))
+        humain = int(input("Nombre de joueurs humains: (max 4) : "))
+        robot = int(input(f"Nombre de joueurs robots: (max 4) : "))
 
     print("\n")
     print(f"Humain: {humain}")
-    # print(f"Robot: {robot}")
+    print(f"Robot: {robot}")
     print("\n")
 
-    statistique = input("Voulez vous afficher les statistiques? (y/n) : ")
+    statistique = input("Souhaitez-vous afficher les statistiques? (y/n) : ")
+
     if statistique == "y":
-        nombre_partie = int(input("Nombre de partie: "))
+        nombre_partie = int(input("Nombre de parties: "))
         main_statistique(humain, nombre_partie)
 
     else:
